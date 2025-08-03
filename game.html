@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trò Chơi Ôn Tập Lũy Thừa - Toán 6</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { 
+            font-family: 'Inter', sans-serif; 
+        }
+        .timer-warning { 
+            animation: pulse 1s infinite; 
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .correct-answer { 
+            animation: correctBounce 0.6s ease-out; 
+        }
+        .wrong-answer { 
+            animation: wrongShake 0.6s ease-out; 
+        }
+        .success-flash {
+            animation: successFlash 0.8s ease-out;
+        }
+        .error-flash {
+            animation: errorFlash 0.8s ease-out;
+        }
+        @keyframes correctBounce {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        @keyframes wrongShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        @keyframes successFlash {
+            0% { background-color: rgba(34, 197, 94, 0); }
+            50% { background-color: rgba(34, 197, 94, 0.2); }
+            100% { background-color: rgba(34, 197, 94, 0); }
+        }
+        @keyframes errorFlash {
+            0% { background-color: rgba(239, 68, 68, 0); }
+            50% { background-color: rgba(239, 68, 68, 0.2); }
+            100% { background-color: rgba(239, 68, 68, 0); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 min-h-screen transition-all duration-300">
+    <div class="container mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-4xl">
+        <!-- Header -->
+        <div class="text-center mb-4 sm:mb-6">
+            <div class="flex justify-between items-center mb-3 sm:mb-4">
+                <div></div>
+                <button id="themeToggle" onclick="toggleTheme()" class="p-2 rounded-lg bg-white dark:bg-gray-800 shadow-md hover:shadow-lg transition-all duration-300">
+                    <span id="themeIcon" class="text-xl">🌙</span>
+                </button>
+            </div>
+            <h1 class="text-2xl sm:text-4xl font-bold text-indigo-800 dark:text-indigo-300 mb-2">🎯 Trò Chơi Lũy Thừa</h1>
+            <p class="text-sm sm:text-lg text-gray-600 dark:text-gray-400 px-2">Ôn tập công thức lũy thừa với số mũ tự nhiên - Toán 6</p>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="startScreen" class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 sm:p-8">
+            <div class="text-center mb-4 sm:mb-6">
+                <div class="text-4xl sm:text-6xl mb-3 sm:mb-4">📚</div>
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-200 mb-3 sm:mb-4">Hướng Dẫn Chơi</h2>
+            </div>
+
+            <!-- Công thức tóm tắt -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900 dark:to-indigo-900 rounded-xl p-3 sm:p-6 mb-4 sm:mb-6">
+                <h3 class="font-bold text-indigo-800 dark:text-indigo-300 mb-3 sm:mb-4 text-center text-sm sm:text-base">📋 Tóm Tắt Công Thức Lũy Thừa</h3>
+                <div class="grid grid-cols-1 gap-3 sm:gap-4 text-xs sm:text-sm">
+                    <div class="bg-white dark:bg-gray-700 rounded-lg p-3 sm:p-4">
+                        <h4 class="font-semibold text-blue-700 dark:text-blue-400 mb-2">Định nghĩa:</h4>
+                        <p class="text-gray-700 dark:text-gray-300">a<sup>n</sup> = a × a × ... × a (n lần)</p>
+                        <p class="text-gray-600 dark:text-gray-400 text-xs mt-1">a: cơ số, n: số mũ</p>
+                    </div>
+                    <div class="bg-white dark:bg-gray-700 rounded-lg p-3 sm:p-4">
+                        <h4 class="font-semibold text-blue-700 dark:text-blue-400 mb-2">Lũy thừa với số mũ 0:</h4>
+                        <p class="text-gray-700 dark:text-gray-300">a<sup>0</sup> = 1 (a ≠ 0)</p>
+                    </div>
+                    <div class="bg-white dark:bg-gray-700 rounded-lg p-3 sm:p-4">
+                        <h4 class="font-semibold text-blue-700 dark:text-blue-400 mb-2">Nhân hai lũy thừa cùng cơ số:</h4>
+                        <p class="text-gray-700 dark:text-gray-300">a<sup>m</sup> × a<sup>n</sup> = a<sup>m+n</sup></p>
+                    </div>
+                    <div class="bg-white dark:bg-gray-700 rounded-lg p-3 sm:p-4">
+                        <h4 class="font-semibold text-blue-700 dark:text-blue-400 mb-2">Chia hai lũy thừa cùng cơ số:</h4>
+                        <p class="text-gray-700 dark:text-gray-300">a<sup>m</sup> : a<sup>n</sup> = a<sup>m-n</sup> (a ≠ 0)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-blue-50 dark:bg-blue-900 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+                <h3 class="font-semibold text-blue-800 dark:text-blue-300 mb-2 text-sm sm:text-base">Quy tắc chơi:</h3>
+                <ul class="text-left text-blue-700 dark:text-blue-400 space-y-1 text-xs sm:text-sm">
+                    <li>• 32 câu hỏi với 5 mức độ khó tăng dần</li>
+                    <li>• Mỗi câu có 60 giây để trả lời</li>
+                    <li>• 4 đáp án lựa chọn cho mỗi câu</li>
+                    <li>• Có gợi ý khi trả lời sai</li>
+                    <li>• Mỗi câu trả lời đúng được 1 điểm</li>
+                    <li>• Câu hỏi được xáo trộn mỗi lần chơi</li>
+                </ul>
+            </div>
+
+            <div class="text-center">
+                <button onclick="startGame()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 sm:px-8 rounded-xl text-base sm:text-lg transition-all duration-300 transform hover:scale-105 w-full sm:w-auto">
+                    🚀 Bắt Đầu Chơi
+                </button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="hidden">
+            <!-- Progress Bar -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-3 sm:p-4 mb-3 sm:mb-4">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Câu <span id="currentQuestion">1</span>/32</span>
+                    <span class="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Điểm: <span id="currentScore">0</span></span>
+                </div>
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 sm:h-3">
+                    <div id="progressBar" class="bg-indigo-600 dark:bg-indigo-500 h-2 sm:h-3 rounded-full transition-all duration-300" style="width: 5%"></div>
+                </div>
+            </div>
+
+            <!-- Timer -->
+            <div class="text-center mb-3 sm:mb-4">
+                <div id="timer" class="inline-block bg-red-500 dark:bg-red-600 text-white font-bold py-2 px-3 sm:px-4 rounded-full text-lg sm:text-xl">60</div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 sm:p-8 mb-3 sm:mb-4">
+                <div class="mb-3 sm:mb-4">
+                    <span id="questionLevel" class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 text-xs sm:text-sm font-medium px-2 sm:px-3 py-1 rounded-full">Nhận biết</span>
+                </div>
+                <h2 id="questionText" class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 sm:mb-6 leading-relaxed">Câu hỏi sẽ hiển thị ở đây</h2>
+                
+                <div class="grid grid-cols-1 gap-3 sm:gap-4">
+                    <button class="answer-btn bg-gray-50 dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900 border-2 border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 rounded-xl p-3 sm:p-4 text-left transition-all duration-300" onclick="selectAnswer(0)">
+                        <span class="font-medium text-blue-600 dark:text-blue-400">A.</span> <span class="answer-text ml-2 text-gray-800 dark:text-gray-200 text-sm sm:text-base"></span>
+                    </button>
+                    <button class="answer-btn bg-gray-50 dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900 border-2 border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 rounded-xl p-3 sm:p-4 text-left transition-all duration-300" onclick="selectAnswer(1)">
+                        <span class="font-medium text-blue-600 dark:text-blue-400">B.</span> <span class="answer-text ml-2 text-gray-800 dark:text-gray-200 text-sm sm:text-base"></span>
+                    </button>
+                    <button class="answer-btn bg-gray-50 dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900 border-2 border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 rounded-xl p-3 sm:p-4 text-left transition-all duration-300" onclick="selectAnswer(2)">
+                        <span class="font-medium text-blue-600 dark:text-blue-400">C.</span> <span class="answer-text ml-2 text-gray-800 dark:text-gray-200 text-sm sm:text-base"></span>
+                    </button>
+                    <button class="answer-btn bg-gray-50 dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900 border-2 border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 rounded-xl p-3 sm:p-4 text-left transition-all duration-300" onclick="selectAnswer(3)">
+                        <span class="font-medium text-blue-600 dark:text-blue-400">D.</span> <span class="answer-text ml-2 text-gray-800 dark:text-gray-200 text-sm sm:text-base"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Hint Section -->
+            <div id="hintSection" class="hidden bg-yellow-50 dark:bg-yellow-900 border-l-4 border-yellow-400 dark:border-yellow-500 p-3 sm:p-4 rounded-r-xl mb-3 sm:mb-4">
+                <div class="flex items-start">
+                    <div class="text-yellow-400 dark:text-yellow-300 text-lg sm:text-xl mr-3 mt-1">💡</div>
+                    <div>
+                        <h3 class="text-yellow-800 dark:text-yellow-300 font-medium text-sm sm:text-base">Gợi ý:</h3>
+                        <p id="hintText" class="text-yellow-700 dark:text-yellow-400 mt-1 text-sm sm:text-base"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="resultScreen" class="hidden bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 sm:p-8 text-center">
+            <div class="mb-4 sm:mb-6">
+                <div id="resultEmoji" class="text-4xl sm:text-6xl mb-3 sm:mb-4">🎉</div>
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200 mb-3 sm:mb-4">Kết Quả</h2>
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900 dark:to-indigo-900 rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
+                    <div class="text-3xl sm:text-4xl font-bold text-indigo-600 dark:text-indigo-400 mb-2" id="finalScore">0</div>
+                    <div class="text-base sm:text-lg text-gray-600 dark:text-gray-400 mb-2">điểm</div>
+                    <div class="text-sm text-gray-500 dark:text-gray-500" id="correctAnswers">0/32 câu đúng</div>
+                    <div class="text-xs sm:text-sm text-gray-500 dark:text-gray-500 mt-2" id="totalScore">Tổng điểm tích lũy: 0</div>
+                </div>
+                <div id="resultMessage" class="text-base sm:text-lg text-gray-700 dark:text-gray-300 mb-4 sm:mb-6 px-2"></div>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                <button onclick="restartGame()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 text-sm sm:text-base">
+                    🔄 Chơi Lại
+                </button>
+                <button onclick="reviewAnswers()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 text-sm sm:text-base">
+                    📋 Xem Đáp Án
+                </button>
+            </div>
+        </div>
+
+        <!-- Review Screen -->
+        <div id="reviewScreen" class="hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 sm:p-8">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4 sm:mb-6 text-center">📋 Xem Lại Đáp Án</h2>
+                <div id="reviewContent" class="space-y-3 sm:space-y-4 max-h-80 sm:max-h-96 overflow-y-auto"></div>
+                <div class="text-center mt-4 sm:mt-6">
+                    <button onclick="backToResult()" class="bg-gray-600 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 text-sm sm:text-base w-full sm:w-auto">
+                        ← Quay Lại
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game data - Expanded with more levels
+        const questions = [
+            // Nhận biết (6 câu)
+            {
+                level: "Nhận biết",
+                question: "2³ có nghĩa là gì?",
+                answers: ["2 + 2 + 2", "2 × 2 × 2", "2 × 3", "3 × 3"],
+                correct: 1,
+                hint: "Lũy thừa có nghĩa là nhân một số với chính nó nhiều lần."
+            },
+            {
+                level: "Nhận biết",
+                question: "Trong lũy thừa 5⁴, số 5 được gọi là gì?",
+                answers: ["Số mũ", "Cơ số", "Kết quả", "Lũy thừa"],
+                correct: 1,
+                hint: "Số được viết to hơn ở dưới được gọi là cơ số."
+            },
+            {
+                level: "Nhận biết",
+                question: "7⁰ bằng bao nhiêu?",
+                answers: ["0", "7", "1", "Không xác định"],
+                correct: 2,
+                hint: "Bất kỳ số nào (khác 0) mũ 0 đều bằng 1."
+            },
+            {
+                level: "Nhận biết",
+                question: "4² bằng bao nhiêu?",
+                answers: ["8", "12", "6", "16"],
+                correct: 3,
+                hint: "4² = 4 × 4"
+            },
+            {
+                level: "Nhận biết",
+                question: "10³ bằng bao nhiêu?",
+                answers: ["30", "100", "1000", "300"],
+                correct: 2,
+                hint: "10³ = 10 × 10 × 10"
+            },
+            {
+                level: "Nhận biết",
+                question: "3⁴ bằng bao nhiêu?",
+                answers: ["12", "64", "81", "27"],
+                correct: 2,
+                hint: "3⁴ = 3 × 3 × 3 × 3"
+            },
+
+            // Thông hiểu (7 câu)
+            {
+                level: "Thông hiểu",
+                question: "2³ × 2² bằng bao nhiêu?",
+                answers: ["2⁶", "4⁵", "8", "2⁵"],
+                correct: 3,
+                hint: "Sử dụng công thức: aᵐ × aⁿ = aᵐ⁺ⁿ"
+            },
+            {
+                level: "Thông hiểu",
+                question: "3⁶ : 3² bằng bao nhiêu?",
+                answers: ["3³", "9⁴", "81", "3⁴"],
+                correct: 3,
+                hint: "Sử dụng công thức: aᵐ : aⁿ = aᵐ⁻ⁿ"
+            },
+            {
+                level: "Thông hiểu",
+                question: "(2³)² bằng bao nhiêu?",
+                answers: ["2⁵", "4³", "64", "2⁶"],
+                correct: 3,
+                hint: "Sử dụng công thức: (aᵐ)ⁿ = aᵐˣⁿ"
+            },
+            {
+                level: "Thông hiểu",
+                question: "Viết 64 dưới dạng lũy thừa của 2:",
+                answers: ["2⁵", "2⁷", "2⁴", "2⁶"],
+                correct: 3,
+                hint: "Thử chia 64 cho 2 liên tiếp để tìm số mũ."
+            },
+            {
+                level: "Thông hiểu",
+                question: "Tìm x biết: 2ˣ = 32",
+                answers: ["x = 4", "x = 6", "x = 3", "x = 5"],
+                correct: 3,
+                hint: "32 = 2 × 2 × 2 × 2 × 2, đếm số lần nhân."
+            },
+            {
+                level: "Thông hiểu",
+                question: "5³ : 5¹ bằng bao nhiêu?",
+                answers: ["5²", "5⁴", "25", "125"],
+                correct: 0,
+                hint: "Sử dụng công thức: aᵐ : aⁿ = aᵐ⁻ⁿ, nên 5³ : 5¹ = 5³⁻¹ = 5²"
+            },
+            {
+                level: "Thông hiểu",
+                question: "Viết 125 dưới dạng lũy thừa của 5:",
+                answers: ["5²", "5⁴", "5³", "5⁵"],
+                correct: 2,
+                hint: "125 = 5 × 5 × 5 = 5³"
+            },
+
+            // Vận dụng (7 câu)
+            {
+                level: "Vận dụng",
+                question: "Tính giá trị của biểu thức: 3² + 2³",
+                answers: ["11", "17", "13", "15"],
+                correct: 1,
+                hint: "Tính 3² = 9 và 2³ = 8, rồi cộng lại."
+            },
+            {
+                level: "Vận dụng",
+                question: "Tìm cơ số a biết: a³ = 27",
+                answers: ["a = 9", "a = 6", "a = 12", "a = 3"],
+                correct: 3,
+                hint: "Tìm số nào nhân với chính nó 3 lần bằng 27."
+            },
+            {
+                level: "Vận dụng",
+                question: "Tính giá trị của biểu thức: 2³ × 3² - 4²",
+                answers: ["64", "48", "72", "56"],
+                correct: 3,
+                hint: "Tính từng lũy thừa trước: 2³ = 8, 3² = 9, 4² = 16."
+            },
+            {
+                level: "Vận dụng",
+                question: "So sánh: 2¹⁰ và 10³",
+                answers: ["2¹⁰ > 10³", "2¹⁰ < 10³", "2¹⁰ = 10³", "Không so sánh được"],
+                correct: 0,
+                hint: "Tính 2¹⁰ = 1024 và 10³ = 1000."
+            },
+            {
+                level: "Vận dụng",
+                question: "Tính: (2²)³ + (3²)²",
+                answers: ["97", "89", "81", "145"],
+                correct: 3,
+                hint: "(2²)³ = 2⁶ = 64 và (3²)² = 3⁴ = 81, rồi cộng lại."
+            },
+            {
+                level: "Vận dụng",
+                question: "Tìm x biết: 3ˣ⁺¹ = 81",
+                answers: ["x = 3", "x = 4", "x = 2", "x = 5"],
+                correct: 0,
+                hint: "81 = 3⁴, nên 3ˣ⁺¹ = 3⁴, suy ra x + 1 = 4"
+            },
+            {
+                level: "Vận dụng",
+                question: "So sánh: 3⁵ và 5³",
+                answers: ["3⁵ > 5³", "3⁵ < 5³", "3⁵ = 5³", "Không so sánh được"],
+                correct: 1,
+                hint: "Tính 3⁵ = 243 và 5³ = 125, so sánh kết quả."
+            },
+
+            // Vận dụng cao (6 câu)
+            {
+                level: "Vận dụng cao",
+                question: "Tính: (2³ + 3²)² - (2² + 3³)²",
+                answers: ["-527", "-625", "-729", "-343"],
+                correct: 0,
+                hint: "Tính từng ngoặc: (8+9)² - (4+27)² = 17² - 31² = 289 - 961"
+            },
+            {
+                level: "Vận dụng cao",
+                question: "Tìm x biết: 2ˣ + 2ˣ⁺¹ + 2ˣ⁺² = 112",
+                answers: ["x = 4", "x = 5", "x = 3", "x = 6"],
+                correct: 0,
+                hint: "Đặt 2ˣ = a, ta có: a + 2a + 4a = 7a = 112, nên a = 16 = 2⁴"
+            },
+            {
+                level: "Vận dụng cao",
+                question: "So sánh: 2²⁰ và 3¹³",
+                answers: ["2²⁰ > 3¹³", "2²⁰ < 3¹³", "2²⁰ = 3¹³", "Không xác định"],
+                correct: 1,
+                hint: "2²⁰ = (2⁴)⁵ = 16⁵ và 3¹³ = 3¹³. So sánh 16⁵ với 3¹³"
+            },
+            {
+                level: "Vận dụng cao",
+                question: "Tính: 4³ × 8² : 2⁹",
+                answers: ["2", "4", "8", "1"],
+                correct: 0,
+                hint: "Viết tất cả về cơ số 2: 4³ = (2²)³ = 2⁶, 8² = (2³)² = 2⁶"
+            },
+            {
+                level: "Vận dụng cao",
+                question: "Tìm số tự nhiên n sao cho: 3ⁿ⁺¹ - 3ⁿ = 162",
+                answers: ["n = 4", "n = 5", "n = 3", "n = 6"],
+                correct: 0,
+                hint: "3ⁿ⁺¹ - 3ⁿ = 3ⁿ(3-1) = 2×3ⁿ = 162, nên 3ⁿ = 81 = 3⁴"
+            },
+            {
+                level: "Vận dụng cao",
+                question: "Tính giá trị của A = 2⁶ + 2⁵ + 2⁴ + 2³ + 2² + 2¹ + 2⁰",
+                answers: ["127", "128", "255", "256"],
+                correct: 0,
+                hint: "Đây là tổng cấp số nhân: A = 2⁷ - 1 = 128 - 1 = 127"
+            },
+
+            // Thách thức (6 câu)
+            {
+                level: "Thách thức",
+                question: "Tìm chữ số tận cùng của 2²⁰²⁴",
+                answers: ["2", "4", "6", "8"],
+                correct: 2,
+                hint: "Chu kỳ tận cùng của lũy thừa 2: 2,4,8,6,2,4,8,6... (chu kỳ 4)"
+            },
+            {
+                level: "Thách thức",
+                question: "Cho 2ˣ = 3ʸ = 6ᶻ. Tìm mối quan hệ giữa x, y, z:",
+                answers: ["1/x + 1/y = 1/z", "x + y = z", "1/z = 1/x + 1/y", "xyz = 1"],
+                correct: 2,
+                hint: "Đặt 2ˣ = 3ʸ = 6ᶻ = k. Từ đó suy ra x, y, z theo k"
+            },
+            {
+                level: "Thách thức",
+                question: "Tính: (√2)⁸ × (√3)⁶ × (√6)⁴",
+                answers: ["144", "216", "288", "432"],
+                correct: 1,
+                hint: "(√2)⁸ = 2⁴ = 16, (√3)⁶ = 3³ = 27, (√6)⁴ = 6² = 36"
+            },
+            {
+                level: "Thách thức",
+                question: "Tìm x biết: 9ˣ - 3ˣ⁺¹ = 162",
+                answers: ["x = 3", "x = 4", "x = 2", "x = 5"],
+                correct: 0,
+                hint: "9ˣ = (3²)ˣ = 3²ˣ. Phương trình trở thành: 3²ˣ - 3×3ˣ = 162"
+            },
+            {
+                level: "Thách thức",
+                question: "So sánh: 2³⁰⁰ và 3²⁰⁰",
+                answers: ["2³⁰⁰ > 3²⁰⁰", "2³⁰⁰ < 3²⁰⁰", "2³⁰⁰ = 3²⁰⁰", "Không so sánh được"],
+                correct: 1,
+                hint: "So sánh (2³)¹⁰⁰ và (3²)¹⁰⁰, tức là 8¹⁰⁰ và 9¹⁰⁰"
+            },
+            {
+                level: "Thách thức",
+                question: "Tính tổng: S = 1 + 3 + 3² + 3³ + ... + 3¹⁰",
+                answers: ["88573", "177146", "59049", "44286"],
+                correct: 0,
+                hint: "Tổng cấp số nhân: S = (3¹¹ - 1)/(3 - 1) = (177147 - 1)/2"
+            }
+        ];
+
+        // Game state
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let correctAnswersCount = 0;
+        let timeLeft = 60;
+        let timer;
+        let userAnswers = [];
+        let shuffledQuestions = [];
+        let isDarkMode = true;
+        let totalScore = 0;
+
+        // Sound functions using Web Audio API
+        function createAudioContext() {
+            return new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function playCorrectSound() {
+            try {
+                const audioContext = createAudioContext();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // Success sound: ascending notes
+                oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+                oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+                oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+                
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.4);
+                
+                // Add visual flash effect
+                document.body.classList.add('success-flash');
+                setTimeout(() => document.body.classList.remove('success-flash'), 800);
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+
+        function playWrongSound() {
+            try {
+                const audioContext = createAudioContext();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // Error sound: descending notes
+                oscillator.frequency.setValueAtTime(400, audioContext.currentTime); // Lower frequency
+                oscillator.frequency.setValueAtTime(300, audioContext.currentTime + 0.15);
+                oscillator.frequency.setValueAtTime(200, audioContext.currentTime + 0.3);
+                
+                oscillator.type = 'sawtooth';
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+                
+                // Add visual flash effect
+                document.body.classList.add('error-flash');
+                setTimeout(() => document.body.classList.remove('error-flash'), 800);
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+
+        function playTickSound() {
+            try {
+                const audioContext = createAudioContext();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // Tick sound: short beep
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator.type = 'square';
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+
+        // Load saved theme and total score
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('powerGameTheme');
+            // Default to dark theme if no saved preference
+            if (savedTheme === 'light') {
+                isDarkMode = false;
+                document.documentElement.classList.remove('dark');
+                document.getElementById('themeIcon').textContent = '🌙';
+            } else {
+                // Default dark theme
+                isDarkMode = true;
+                document.documentElement.classList.add('dark');
+                document.getElementById('themeIcon').textContent = '☀️';
+                if (!savedTheme) {
+                    localStorage.setItem('powerGameTheme', 'dark');
+                }
+            }
+            
+            // Load total score
+            const savedTotalScore = localStorage.getItem('powerGameTotalScore');
+            if (savedTotalScore) {
+                totalScore = parseInt(savedTotalScore);
+            }
+        }
+
+        // Toggle theme
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('themeIcon').textContent = '☀️';
+                localStorage.setItem('powerGameTheme', 'dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('themeIcon').textContent = '🌙';
+                localStorage.setItem('powerGameTheme', 'light');
+            }
+        }
+
+        // Shuffle array function
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            correctAnswersCount = 0;
+            userAnswers = [];
+            
+            shuffledQuestions = shuffleArray(questions);
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const question = shuffledQuestions[currentQuestionIndex];
+            
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('currentScore').textContent = score;
+            document.getElementById('progressBar').style.width = ((currentQuestionIndex + 1) / shuffledQuestions.length) * 100 + '%';
+            
+            document.getElementById('questionLevel').textContent = question.level;
+            document.getElementById('questionLevel').className = `inline-block text-sm font-medium px-3 py-1 rounded-full ${
+                question.level === 'Nhận biết' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300' :
+                question.level === 'Thông hiểu' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300' :
+                question.level === 'Vận dụng' ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300' :
+                question.level === 'Vận dụng cao' ? 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-300' :
+                'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900'
+            }`;
+            
+            document.getElementById('questionText').textContent = question.question;
+            
+            const answerButtons = document.querySelectorAll('.answer-btn');
+            const answerTexts = document.querySelectorAll('.answer-text');
+            
+            answerButtons.forEach((btn, index) => {
+                btn.className = 'answer-btn bg-gray-50 dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900 border-2 border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 rounded-xl p-4 text-left transition-all duration-300';
+                btn.disabled = false;
+                answerTexts[index].textContent = question.answers[index];
+            });
+            
+            document.getElementById('hintSection').classList.add('hidden');
+            
+            timeLeft = 60;
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            timer = setInterval(() => {
+                timeLeft--;
+                const timerElement = document.getElementById('timer');
+                timerElement.textContent = timeLeft;
+                
+                if (timeLeft <= 10) {
+                    timerElement.classList.add('timer-warning');
+                    if (timeLeft <= 5) {
+                        playTickSound(); // Play tick sound in last 5 seconds
+                    }
+                } else {
+                    timerElement.classList.remove('timer-warning');
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    selectAnswer(-1);
+                }
+            }, 1000);
+        }
+
+        function selectAnswer(selectedIndex) {
+            clearInterval(timer);
+            const question = shuffledQuestions[currentQuestionIndex];
+            const answerButtons = document.querySelectorAll('.answer-btn');
+            
+            answerButtons.forEach(btn => btn.disabled = true);
+            
+            userAnswers.push({
+                question: question.question,
+                level: question.level,
+                userAnswer: selectedIndex >= 0 ? question.answers[selectedIndex] : "Hết thời gian",
+                correctAnswer: question.answers[question.correct],
+                isCorrect: selectedIndex === question.correct
+            });
+            
+            if (selectedIndex === question.correct) {
+                // Play success sound and visual effects
+                playCorrectSound();
+                answerButtons[selectedIndex].classList.add('correct-answer');
+                answerButtons[selectedIndex].className = answerButtons[selectedIndex].className.replace('bg-gray-50 dark:bg-gray-700', 'bg-green-100 dark:bg-green-800').replace('border-gray-200 dark:border-gray-600', 'border-green-500 dark:border-green-400');
+                score++;
+                correctAnswersCount++;
+                
+                setTimeout(() => {
+                    nextQuestion();
+                }, 1500);
+            } else {
+                // Play error sound and visual effects
+                playWrongSound();
+                if (selectedIndex >= 0) {
+                    answerButtons[selectedIndex].classList.add('wrong-answer');
+                    answerButtons[selectedIndex].className = answerButtons[selectedIndex].className.replace('bg-gray-50 dark:bg-gray-700', 'bg-red-100 dark:bg-red-800').replace('border-gray-200 dark:border-gray-600', 'border-red-500 dark:border-red-400');
+                }
+                
+                answerButtons[question.correct].className = answerButtons[question.correct].className.replace('bg-gray-50 dark:bg-gray-700', 'bg-green-100 dark:bg-green-800').replace('border-gray-200 dark:border-gray-600', 'border-green-500 dark:border-green-400');
+                
+                document.getElementById('hintText').textContent = question.hint;
+                document.getElementById('hintSection').classList.remove('hidden');
+                
+                setTimeout(() => {
+                    nextQuestion();
+                }, 3000);
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < shuffledQuestions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('resultScreen').classList.remove('hidden');
+            
+            // Update total score
+            totalScore += score;
+            localStorage.setItem('powerGameTotalScore', totalScore.toString());
+            
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('correctAnswers').textContent = `${correctAnswersCount}/${shuffledQuestions.length} câu đúng`;
+            document.getElementById('totalScore').textContent = `Tổng điểm tích lũy: ${totalScore}`;
+            
+            let resultMessage = "";
+            let emoji = "";
+            const percentage = (score / shuffledQuestions.length) * 100;
+            
+            if (percentage >= 90) {
+                resultMessage = "Xuất sắc! Bạn đã nắm vững kiến thức về lũy thừa!";
+                emoji = "🏆";
+            } else if (percentage >= 75) {
+                resultMessage = "Tốt lắm! Bạn đã hiểu khá tốt về lũy thừa!";
+                emoji = "🎉";
+            } else if (percentage >= 50) {
+                resultMessage = "Khá tốt! Hãy ôn tập thêm để cải thiện!";
+                emoji = "👍";
+            } else {
+                resultMessage = "Cần cố gắng thêm! Hãy xem lại lý thuyết và luyện tập nhiều hơn!";
+                emoji = "💪";
+            }
+            
+            document.getElementById('resultMessage').textContent = resultMessage;
+            document.getElementById('resultEmoji').textContent = emoji;
+        }
+
+        function restartGame() {
+            document.getElementById('resultScreen').classList.add('hidden');
+            document.getElementById('startScreen').classList.remove('hidden');
+        }
+
+        function reviewAnswers() {
+            document.getElementById('resultScreen').classList.add('hidden');
+            document.getElementById('reviewScreen').classList.remove('hidden');
+            
+            const reviewContent = document.getElementById('reviewContent');
+            reviewContent.innerHTML = '';
+            
+            userAnswers.forEach((answer, index) => {
+                const reviewItem = document.createElement('div');
+                reviewItem.className = `p-4 rounded-lg border-l-4 ${answer.isCorrect ? 'bg-green-50 dark:bg-green-900 border-green-400 dark:border-green-500' : 'bg-red-50 dark:bg-red-900 border-red-400 dark:border-red-500'}`;
+                
+                reviewItem.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-xs sm:text-sm font-medium px-2 py-1 rounded ${
+                                    answer.level === 'Nhận biết' ? 'bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-300' :
+                                    answer.level === 'Thông hiểu' ? 'bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-300' :
+                                    answer.level === 'Vận dụng' ? 'bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-300' :
+                                    answer.level === 'Vận dụng cao' ? 'bg-purple-100 dark:bg-purple-800 text-purple-800 dark:text-purple-300' :
+                                    'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900'
+                                }">
+                                    ${answer.level}
+                                </span>
+                                <span class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Câu ${index + 1}</span>
+                            </div>
+                            <p class="font-medium text-gray-800 dark:text-gray-200 mb-2 text-sm sm:text-base">${answer.question}</p>
+                            <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                                <span class="font-medium">Bạn chọn:</span> ${answer.userAnswer}
+                            </p>
+                            <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                                <span class="font-medium">Đáp án đúng:</span> ${answer.correctAnswer}
+                            </p>
+                        </div>
+                        <div class="text-xl sm:text-2xl ml-2 sm:ml-4">
+                            ${answer.isCorrect ? '✅' : '❌'}
+                        </div>
+                    </div>
+                `;
+                
+                reviewContent.appendChild(reviewItem);
+            });
+        }
+
+        function backToResult() {
+            document.getElementById('reviewScreen').classList.add('hidden');
+            document.getElementById('resultScreen').classList.remove('hidden');
+        }
+
+        // Initialize theme on page load
+        window.addEventListener('load', function() {
+            loadTheme();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9695ffe9e2a91069',t:'MTc1NDIyNjA0NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
